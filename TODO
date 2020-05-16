@@ -1,0 +1,11 @@
+
+Perlin Noise:
+  Research:
+    ✔ Research Triangle strip @done(20-05-16 23:07)
+    ☐ Research Perlin Noise
+  
+  TO DO:
+    ☐ Create vertices in grid formation @started(20-05-16 23:07)
+    ☐ Add Perlin noise
+    ☐ Make it move
+
