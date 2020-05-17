@@ -8,18 +8,26 @@ let renderer;
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
 
+
+const sizeX = 3000
+const sizeY = 3000
+
 // camera
-const initCameraX = 0;
-const initCameraY = 0;
-const initCameraZ = 800;
+const initCameraX = sizeX / 2;
+const initCameraY = sizeY / 2 - 2500;
+const initCameraZ = 500;
+const lookAtCenter = new THREE.Vector3(sizeX / 2, sizeY / 2, 100)
 
 // shapes
 const gridSize = 50;
 const grid = [];
 
+// calc grid values
+const gridX = Math.ceil(sizeX / gridSize);
+const gridY = Math.ceil(sizeY / gridSize);
 
 // initialize canvas
-function init () {
+function init() {
     const container = document.getElementById('canvas');
     windowX = window.innerWidth;
     windowY = window.innerHeight;
@@ -30,11 +38,13 @@ function init () {
     renderer.setClearColor(0x000000, 0);
 
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(25, windowX / windowY, 1, 3000);
+    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 1, 30000);
 
     camera.position.x = initCameraX;
     camera.position.y = initCameraY;
     camera.position.z = initCameraZ;
+    camera.lookAt(lookAtCenter)
+
     scene.add(camera);
 
     renderer.setSize(windowX, windowY);
@@ -42,45 +52,32 @@ function init () {
     scene.fog = new THREE.FogExp2(0x000000, 0.0004);
 
     // shape rendering
-
     const geom = new THREE.Geometry();
     const material = new THREE.MeshLambertMaterial({
         color: 0xffffff,
         wireframe: true
     });
 
-    // calc grid values
-    const gridX = Math.ceil(windowX / gridSize);
-    const gridY = Math.ceil(windowY / gridSize);
-
-    // render grid
     for (let y = 0; y < gridY; y++) {
-        const currentY = y * gridSize;
-        grid[y] = [];
-
+        let line = []
         for (let x = 0; x < gridX; x++) {
-            const currentX = x * gridSize;
-            grid[y].push(new THREE.Vector3(currentX, currentY, Math.random() * 100));
+            line.push(new THREE.Vector3(x * gridSize, y * gridSize, Math.random() * 10))
         }
+        grid.push(line)
     }
 
-    // create triangle strip
-    for (let y = 0; y + 1 < grid.length; y++) {
-        const current = grid[y];
+    for (let y = 0; y < gridY - 1; y++) {
+        for (let x = 0; x < gridX - 1; x++) {
+            const arrayPosition = ((y * (gridX - 1)) + x) * 4;
 
-        for (let x = 0; x + 1 < current.length; x++) {
-            const arrayPosition = ((y * current.length) + x) * 3;
 
-            // triangle
-            const v1 = grid[y][x];
-            const v2 = grid[y + 1][x];
-            const v3 = grid[y][x + 1];
-
-            geom.vertices.push(v1);
-            geom.vertices.push(v2);
-            geom.vertices.push(v3);
-
+            geom.vertices.push(grid[y][x]);
+            geom.vertices.push(grid[y][x + 1]);
+            geom.vertices.push(grid[y + 1][x]);
+            geom.vertices.push(grid[y + 1][x + 1]);
             geom.faces.push(new THREE.Face3(arrayPosition, arrayPosition + 1, arrayPosition + 2));
+            geom.faces.push(new THREE.Face3(arrayPosition + 2, arrayPosition + 3, arrayPosition + 1));
+
         }
     }
 
@@ -89,7 +86,7 @@ function init () {
 }
 
 
-function animate () {
+function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 };
