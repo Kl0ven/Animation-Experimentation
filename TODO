@@ -6,6 +6,7 @@ Perlin Noise:
   
   TO DO:
     ✔ Create vertices in grid formation @started(20-05-16 23:07) @done(20-05-17 21:23) @lasted(22h16m47s)
-    ☐ Add Perlin noise
-    ☐ Make it move
+    ✔ Add Perlin noise @done(20-05-18 22:04)
+    ✔ Make it move @done(20-05-18 22:04)
+    ✔ Add colors @done(20-05-18 22:04)
 
