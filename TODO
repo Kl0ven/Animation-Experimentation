@@ -3,7 +3,7 @@ Perlin Noise:
   Research:
     ✔ Research Triangle strip @done(20-05-16 23:07)
     ✔ Research Perlin Noise @done(20-05-19 19:41)
-    ☐ Research Shader
+    ✔ Research Shader @done(20-05-20 22:33)
   
   TO DO:
     ✔ Create vertices in grid formation @started(20-05-16 23:07) @done(20-05-17 21:23) @lasted(22h16m47s)
@@ -12,5 +12,18 @@ Perlin Noise:
     ✔ Add colors @done(20-05-18 22:04)
     ✔ Add glowing/neon @done(20-05-20 16:46)
     ✔ Add Speed & Amplitude to GUI @started(20-05-20 16:48) @done(20-05-20 16:59) @lasted(11m26s)
-    ☐ Add mouse controle left/right
+    ✔ Add mouse controle left/right or paralax @started(20-05-20 23:31) @done(20-05-21 00:14) @lasted(43m31s)
+
+Boids:
+  Research:
+    ☐ Research Boids
+    ☐ Research Model
+    
+  TO DO:
+    ☐ Implement Boid algorithm
+    ☐ Add birds models
+    ☐ Add colors
+    ☐ Disturb bird with mouse
+    
+
 
