@@ -30,8 +30,7 @@ const container = document.getElementById('canvas');
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
 
-
-const sizeX = 3000;
+const sizeX = 5000;
 const sizeY = 3000;
 
 // camera
@@ -53,12 +52,20 @@ let xoff = 0;
 let flying = 0;
 const scale = 0.1;
 
+const halfWidth = windowX / 2;
+const halfHeight = windowX / 2;
+
+const cameraParam = {
+    maxOffsetX: 800,
+    YMin: -300,
+    YMax: 800
+};
+
 const terrainParam = {
     amplitude: 50,
     speed: 0.05,
-    isLine: true
+    isLine: false
 };
-
 
 const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
 
@@ -129,6 +136,15 @@ function init () {
     bloomPass.radius = bloomParam.bloomRadius;
     renderer.toneMappingExposure = Math.pow(bloomParam.exposure, 4.0);
     composer.addPass(bloomPass);
+
+    container.addEventListener('mousemove', e => {
+        const offsetX = e.clientX - halfWidth;
+        const offsetY = e.clientY - halfHeight;
+        camera.position.x = map(offsetX, -halfWidth, halfWidth, cameraParam.maxOffsetX, -cameraParam.maxOffsetX) + initCameraX;
+        lookAtCenter.z = map(offsetY, -halfHeight, halfHeight, cameraParam.YMax, cameraParam.YMin);
+        camera.up = new THREE.Vector3(0, 0, 1);
+        camera.lookAt(lookAtCenter);
+    });
 
     composer.render();
 }
