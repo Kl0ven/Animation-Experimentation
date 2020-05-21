@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 'use strict';
-
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.116.1/build/three.module.js';
 import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/postprocessing/UnrealBloomPass.js';
