@@ -146,6 +146,10 @@ function init () {
         camera.lookAt(lookAtCenter);
     });
 
+    window.addEventListener('resize', function () {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
     composer.render();
 }
 
