@@ -14,16 +14,38 @@ Perlin Noise:
     ✔ Add Speed & Amplitude to GUI @started(20-05-20 16:48) @done(20-05-20 16:59) @lasted(11m26s)
     ✔ Add mouse controle left/right or paralax @started(20-05-20 23:31) @done(20-05-21 00:14) @lasted(43m31s)
 
+  Report:
+    Desktop:
+      ✔ Perf : 96 @done(20-05-22 04:43)
+    Mobile:
+      ✔ Perf : 97 @done(20-05-22 04:43)
+
 Boids:
   Research:
     ☐ Research Boids
-    ☐ Research Model
+    ✔ Research Model @done(20-05-22 04:44)
+    ☐ The Computational Beauty of Nature
     
   TO DO:
-    ☐ Implement Boid algorithm
-    ☐ Add birds models
-    ☐ Add colors
+    Implement Boid algorithm:
+      ☐ Separation
+      ☐ Alignment
+      ☐ Cohesion
+    ✔ Add birds models @done(20-05-22 04:44)
+    ✔ Add colors @done(20-05-22 04:44)
+    ✔ Animate Birds @started(20-05-22 04:54) @done(20-05-22 06:55) @lasted(2h1m59s)
+    ☐ Match animation speed to speed
     ☐ Disturb bird with mouse
+    ☐ Border ? 
+    Optimisation:
+      ☐ QuadTree
+      ☐ Space Subdivision
+  
+  Report:
+    Desktop:
+      ✔ Perf : 96 @done(20-05-22 04:43)
+    Mobile:
+      ✔ Perf : 97 @done(20-05-22 04:43)
     
 
 
