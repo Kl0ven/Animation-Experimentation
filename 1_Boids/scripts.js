@@ -12,19 +12,26 @@ let renderer;
 const loader = new GLTFLoader();
 const container = document.getElementById('canvas');
 let clock;
+let modelGltf;
 // window
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
 
+const BOUNDS = 200;
 
 // camera
 const initCameraX = 0;
-const initCameraY = 20;
-const initCameraZ = 100;
+const initCameraY = 0;
+const initCameraZ = BOUNDS * 2;
 const lookAtCenter = new THREE.Vector3(0, 0, 0);
 
-const herdSize = 1;
 const herd = [];
+
+const herdParam = {
+    birdMaxSpeed: 3,
+    herdSize: 200
+};
+
 // initialize canvas
 function init () {
     windowX = window.innerWidth;
@@ -34,7 +41,7 @@ function init () {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x282828);
-    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 2, 500);
+    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 2, 3000);
 
     camera.position.x = initCameraX;
     camera.position.y = initCameraY;
@@ -57,11 +64,10 @@ function init () {
 
     loader.load('./boids.glb', function (gltf) {
         let bird;
-        for (let i = 0; i < herdSize; i++) {
-            console.log(gltf.animations);
-            bird = new Bird(gltf.scene.clone(), gltf.animations);
+        modelGltf = gltf;
+        for (let i = 0; i < herdParam.herdSize; i++) {
+            bird = new Bird(gltf.scene.clone(), gltf.animations, BOUNDS, herdParam);
             herd.push(bird);
-            console.log(bird);
             scene.add(bird);
         }
     }, undefined, function (error) {
@@ -77,13 +83,36 @@ function init () {
 }
 
 function initGUI () {
-    // const gui = new GUI();
+    const gui = new GUI();
+    const herdFolder = gui.addFolder('Herd');
+
+    herdFolder.open();
+
+    herdFolder.add(herdParam, 'birdMaxSpeed', 0.01, 6).step(0.01).onChange(function (value) {
+        for (const bird of herd) {
+            bird.maxSpeed = Number(value);
+        }
+    });
+    herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
+        const diff = Number(value) - herd.length;
+        for (let i = 0; i < Math.abs(diff); i++) {
+            let bird;
+            if (diff > 0) {
+                bird = new Bird(modelGltf.scene.clone(), modelGltf.animations, BOUNDS, herdParam);
+                herd.push(bird);
+                scene.add(bird);
+            } else {
+                bird = herd.shift();
+                scene.remove(bird);
+            }
+        }
+    });
 }
 
 function animate () {
+    const delta = clock.getDelta();
     for (const bird of herd) {
-        const delta = clock.getDelta();
-        bird.update(delta);
+        bird.update(delta, scene);
     }
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
