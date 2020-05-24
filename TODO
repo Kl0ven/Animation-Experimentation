@@ -29,7 +29,7 @@ Boids:
   TO DO:
     Implement Boid algorithm:
       ☐ Separation
-      ☐ Alignment
+      ✔ Alignment @done(20-05-23 14:02)
       ☐ Cohesion
     ✔ Add birds models @done(20-05-22 04:44)
     ✔ Add colors @done(20-05-22 04:44)
@@ -37,12 +37,17 @@ Boids:
     ✔ Create N Birds w/ random position @done(20-05-22 11:08)
     ✔ Attract Birds to the center @done(20-05-22 14:30)
     ✔ Make the birds face the right orientation @done(20-05-22 15:41)
-    ☐ Match animation speed to speed
+    ✔ Match animation speed to speed @started(20-05-23 13:22) @done(20-05-23 13:30) @lasted(8m21s)
+    ☐ Set Coeff for each Rules
     ☐ Disturb bird with mouse
     ✘ Border ? @cancelled(20-05-22 10:32)
     Optimisation:
+      ☐ Refacto Rules
       ☐ QuadTree
       ☐ Space Subdivision
+    Bug:
+      ☐ LookAtCenter not working
+      ✔ Octree not showing up @done(20-05-24 18:57)
   
   Report:
     Desktop:

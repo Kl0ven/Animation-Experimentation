@@ -5,19 +5,17 @@ const maxForce = 0.05;
 const center = new THREE.Vector3();
 
 // eslint-disable-next-line no-unused-vars
-class Bird extends THREE.Group {
+class Bird {
     constructor (model, animation, BOUNDS, herdParam) {
-        super();
         this.model = model;
         this.bounds = BOUNDS;
         this.maxSpeed = herdParam.birdMaxSpeed;
+        this.animationSpeed = herdParam.animationSpeed;
+        this.perceptionRadius = 50;
         this.model.position.random().multiplyScalar(BOUNDS).subScalar(BOUNDS/2);
         this.velocity = new THREE.Vector3().random();
         this.velocity.setLength(Math.random() * (this.maxSpeed+1));
         this.acceleration = new THREE.Vector3();
-
-        // adding model to this (Group)
-        this.add(this.model);
 
         // Init animation
         this.animation = animation;
@@ -25,7 +23,7 @@ class Bird extends THREE.Group {
         this.action = this.mixer.clipAction(this.animation[0]);
 
         // speeding up animation
-        this.action.timeScale = 5;
+        this.action.timeScale = this.animationSpeed;
 
         // Make the birds flap async
         const clipDuration = this.animation[0].duration;
@@ -46,22 +44,57 @@ class Bird extends THREE.Group {
         return dir;
     }
 
-    flock () {
-        this.acceleration.set(0, 0, 0);
-        const centerForce = this.centerRule();
-        this.acceleration.add(centerForce);
+    alignRule (herd) {
+        const steering = new THREE.Vector3();
+        let total = 0;
+        let d;
+        for (const other of herd) {
+            d = this.model.position.distanceTo(other.model.position);
+
+            if (d < this.perceptionRadius) {
+                steering.add(other.velocity);
+                total++;
+            }
+        }
+        if (total > 0) {
+            steering.divideScalar(total);
+            steering.setLength(this.maxSpeed);
+            steering.sub(this.velocity);
+            this.clampForce(steering);
+        }
+        return steering;
     }
 
-    update (delta) {
-        this.mixer.update(delta);
-        this.flock();
+    flock (herd) {
+        // Reset acceleration to 0
+        this.acceleration.set(0, 0, 0);
+
+        // Applie Center_Rule
+        const centerForce = this.centerRule();
+        this.acceleration.add(centerForce);
+
+        // Applie AlignRule
+        const alignForce = this.alignRule(herd);
+        this.acceleration.add(alignForce);
+    }
+
+    update (delta, herd) {
+        // Update Bird
+        this.flock(herd);
+
+        // Update position, speed, accelaration
         this.model.position.add(this.velocity);
         this.velocity.add(this.acceleration);
         this.velocity.clampLength(-this.maxSpeed, this.maxSpeed);
-        // lookAt
+
+        // Update lookAt
         const dir = this.velocity.clone();
         dir.normalize();
-        this.lookAt(dir);
+        this.model.lookAt(dir);
+
+        // Update animation speed
+        this.action.timeScale = this.animationSpeed * this.velocity.length();
+        this.mixer.update(delta);
     }
 }
 

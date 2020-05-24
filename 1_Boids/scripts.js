@@ -5,6 +5,14 @@ import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/lib
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/loaders/GLTFLoader.js';
 import { Bird } from './bird.js';
+import { Octree } from './Octree.js';
+
+
+// Stats
+const stats = new Stats();
+stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom);
+
 // scene
 let camera;
 let scene;
@@ -13,6 +21,19 @@ const loader = new GLTFLoader();
 const container = document.getElementById('canvas');
 let clock;
 let modelGltf;
+let treeMesh;
+
+const octreeSize = 1000;
+const box = new THREE.Box3(
+    new THREE.Vector3(-octreeSize, -octreeSize, -octreeSize),
+    new THREE.Vector3(octreeSize, octreeSize, octreeSize)
+);
+const tree = new Octree(box, {
+    maxDepth: 10,
+    splitThreshold: 5,
+    joinThreshold: 3
+});
+
 // window
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
@@ -29,7 +50,12 @@ const herd = [];
 
 const herdParam = {
     birdMaxSpeed: 3,
-    herdSize: 200
+    herdSize: 200,
+    animationSpeed: 5
+};
+
+const octreeParam = {
+    displayOctree: false
 };
 
 // initialize canvas
@@ -49,7 +75,6 @@ function init () {
     camera.lookAt(lookAtCenter);
 
     scene.add(camera);
-
     new OrbitControls(camera, renderer.domElement);
 
     container.appendChild(renderer.domElement);
@@ -68,7 +93,7 @@ function init () {
         for (let i = 0; i < herdParam.herdSize; i++) {
             bird = new Bird(gltf.scene.clone(), gltf.animations, BOUNDS, herdParam);
             herd.push(bird);
-            scene.add(bird);
+            tree.add(bird.model);
         }
     }, undefined, function (error) {
         console.error(error);
@@ -78,6 +103,12 @@ function init () {
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
+    scene.add(tree);
+
+    if (octreeParam.displayOctree) {
+        treeMesh = tree.generateGeometry();
+        scene.add(treeMesh);
+    }
     renderer.render(scene, camera);
     clock = new THREE.Clock();
 }
@@ -85,34 +116,54 @@ function init () {
 function initGUI () {
     const gui = new GUI();
     const herdFolder = gui.addFolder('Herd');
+    const octreeFolder = gui.addFolder('Octree');
 
     herdFolder.open();
+    octreeFolder.open();
 
-    herdFolder.add(herdParam, 'birdMaxSpeed', 0.01, 6).step(0.01).onChange(function (value) {
+    herdFolder.add(herdParam, 'birdMaxSpeed', 0.01, 10).step(0.01).onChange(function (value) {
         for (const bird of herd) {
             bird.maxSpeed = Number(value);
         }
     });
-    herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
+    herdFolder.add(herdParam, 'animationSpeed', 0, 10).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.animationSpeed = Number(value);
+        }
+    });
+    herdFolder.add(herdParam, 'herdSize', 1, 1024).step(1).onChange(function (value) {
         const diff = Number(value) - herd.length;
         for (let i = 0; i < Math.abs(diff); i++) {
             let bird;
             if (diff > 0) {
                 bird = new Bird(modelGltf.scene.clone(), modelGltf.animations, BOUNDS, herdParam);
                 herd.push(bird);
-                scene.add(bird);
+                tree.add(bird.model);
             } else {
                 bird = herd.shift();
-                scene.remove(bird);
+                tree.remove(bird.model);
             }
         }
+    });
+
+    octreeFolder.add(octreeParam, 'displayOctree').onChange(function (value) {
+        scene.remove(treeMesh);
     });
 }
 
 function animate () {
+    stats.begin();
     const delta = clock.getDelta();
     for (const bird of herd) {
-        bird.update(delta, scene);
+        bird.update(delta, herd);
+        tree.updateObject(bird.model);
+    }
+    tree.update();
+    stats.end();
+    if (octreeParam.displayOctree) {
+        scene.remove(treeMesh);
+        treeMesh = tree.generateGeometry();
+        scene.add(treeMesh);
     }
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
