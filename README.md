@@ -10,6 +10,8 @@ Experimentation to add animated background to my website
 
 More to com, See [TODO](./TODO)
 
+---
+
 ## Run it
 
 To run it, just clone the repo, then do:
@@ -18,6 +20,7 @@ $ npm start
 ```
 then go to http://localhost:5000
 
+---
 ## Acknowledgments
  Great Thanks to :
  - [josephg](https://github.com/josephg) for the [Perlin noise](https://github.com/josephg/noisejs) implementation
