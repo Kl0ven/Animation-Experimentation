@@ -31,23 +31,30 @@ Boids:
       ☐ Separation
       ✔ Alignment @done(20-05-23 14:02)
       ☐ Cohesion
-    ✔ Add birds models @done(20-05-22 04:44)
-    ✔ Add colors @done(20-05-22 04:44)
-    ✔ Animate Birds @started(20-05-22 04:54) @done(20-05-22 06:55) @lasted(2h1m59s)
-    ✔ Create N Birds w/ random position @done(20-05-22 11:08)
-    ✔ Attract Birds to the center @done(20-05-22 14:30)
-    ✔ Make the birds face the right orientation @done(20-05-22 15:41)
-    ✔ Match animation speed to speed @started(20-05-23 13:22) @done(20-05-23 13:30) @lasted(8m21s)
-    ☐ Set Coeff for each Rules
-    ☐ Disturb bird with mouse
-    ✘ Border ? @cancelled(20-05-22 10:32)
+      ✔ Add birds models @done(20-05-22 04:44)
+      ✔ Add colors @done(20-05-22 04:44)
+      ✔ Animate Birds @started(20-05-22 04:54) @done(20-05-22 06:55) @lasted(2h1m59s)
+      ✔ Create N Birds w/ random position @done(20-05-22 11:08)
+      ✔ Attract Birds to the center @done(20-05-22 14:30)
+      ✔ Make the birds face the right orientation @done(20-05-22 15:41)
+      ✔ Match animation speed to speed @started(20-05-23 13:22) @done(20-05-23 13:30) @lasted(8m21s)
+      ☐ Set Coeff for each Rules
+      ☐ Disturb bird with mouse
+      ✘ Border ? @cancelled(20-05-22 10:32)
+
+    GUI:
+      ✔ Play/Pause @done(20-05-25 20:14)
+      ✔ Display Arrow @done(20-05-25 20:14)
+
     Optimisation:
       ☐ Refacto Rules
       ☐ QuadTree
       ☐ Space Subdivision
+
     Bug:
-      ☐ LookAtCenter not working
+      ✔ LookAtDirection not working, pointing at center (lookAt World coord, dir local coord) @done(20-05-25 20:46)
       ✔ Octree not showing up @done(20-05-24 18:57)
+      ✔ When speed is to high,Octree break @done(20-05-24 22:37)
   
   Report:
     Desktop:

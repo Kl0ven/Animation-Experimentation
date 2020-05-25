@@ -23,7 +23,8 @@ let clock;
 let modelGltf;
 let treeMesh;
 
-const octreeSize = 1000;
+let play = true;
+const octreeSize = 10000;
 const box = new THREE.Box3(
     new THREE.Vector3(-octreeSize, -octreeSize, -octreeSize),
     new THREE.Vector3(octreeSize, octreeSize, octreeSize)
@@ -50,8 +51,9 @@ const herd = [];
 
 const herdParam = {
     birdMaxSpeed: 3,
-    herdSize: 200,
-    animationSpeed: 5
+    herdSize: 20,
+    animationSpeed: 5,
+    displayArrow: true
 };
 
 const octreeParam = {
@@ -102,6 +104,11 @@ function init () {
     window.addEventListener('resize', function () {
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    window.addEventListener('keypress', function (e) {
+        if (e.keyCode == 32) {
+            play = !play;
+        }
+    });
 
     scene.add(tree);
 
@@ -146,6 +153,12 @@ function initGUI () {
         }
     });
 
+    herdFolder.add(herdParam, 'displayArrow').onChange(function (value) {
+        for (const bird of herd) {
+            bird.toggleArrow();
+        }
+    });
+
     octreeFolder.add(octreeParam, 'displayOctree').onChange(function (value) {
         scene.remove(treeMesh);
     });
@@ -153,17 +166,19 @@ function initGUI () {
 
 function animate () {
     stats.begin();
-    const delta = clock.getDelta();
-    for (const bird of herd) {
-        bird.update(delta, herd);
-        tree.updateObject(bird.model);
-    }
-    tree.update();
-    stats.end();
-    if (octreeParam.displayOctree) {
-        scene.remove(treeMesh);
-        treeMesh = tree.generateGeometry();
-        scene.add(treeMesh);
+    if (play) {
+        const delta = clock.getDelta();
+        for (const bird of herd) {
+            bird.update(delta, herd);
+            tree.updateObject(bird.model);
+        }
+        tree.update();
+        stats.end();
+        if (octreeParam.displayOctree) {
+            scene.remove(treeMesh);
+            treeMesh = tree.generateGeometry();
+            scene.add(treeMesh);
+        }
     }
     requestAnimationFrame(animate);
     renderer.render(scene, camera);

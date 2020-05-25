@@ -12,6 +12,7 @@ class Bird {
         this.maxSpeed = herdParam.birdMaxSpeed;
         this.animationSpeed = herdParam.animationSpeed;
         this.perceptionRadius = 50;
+        this.displayArrow = herdParam.displayArrow;
         this.model.position.random().multiplyScalar(BOUNDS).subScalar(BOUNDS/2);
         this.velocity = new THREE.Vector3().random();
         this.velocity.setLength(Math.random() * (this.maxSpeed+1));
@@ -31,6 +32,25 @@ class Bird {
 
         // Play
         this.action.play();
+
+        if (this.displayArrow) {
+            const dir = this.velocity.clone().normalize();
+            this.arrowHelper = new THREE.ArrowHelper(dir, new THREE.Vector3(), 10, 0xffff00);
+            this.model.add(this.arrowHelper);
+        }
+
+    }
+
+    toggleArrow () {
+        if (!this.displayArrow) {
+            const dir = this.velocity.clone().normalize();
+            this.arrowHelper = new THREE.ArrowHelper(dir, new THREE.Vector3(), 10, 0xffff00);
+            this.model.add(this.arrowHelper);
+            this.displayArrow = true;
+        } else {
+            this.model.remove(this.arrowHelper);
+            this.displayArrow = false;
+        }
     }
 
     clampForce (vect) {
@@ -90,7 +110,16 @@ class Bird {
         // Update lookAt
         const dir = this.velocity.clone();
         dir.normalize();
-        this.model.lookAt(dir);
+
+        const point = this.model.position.clone().add(dir);
+        this.model.lookAt(point);
+
+        if (this.displayArrow && typeof this.arrowHelper != 'undefined') {
+            const quaternion = new THREE.Quaternion();
+            this.model.getWorldQuaternion(quaternion);
+            this.arrowHelper.setDirection(dir.clone().applyQuaternion(quaternion.inverse()));
+        }
+
 
         // Update animation speed
         this.action.timeScale = this.animationSpeed * this.velocity.length();
