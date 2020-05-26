@@ -31,8 +31,8 @@ const box = new THREE.Box3(
 );
 const tree = new Octree(box, {
     maxDepth: 10,
-    splitThreshold: 5,
-    joinThreshold: 3
+    splitThreshold: 15,
+    joinThreshold: 10
 });
 
 // window
@@ -53,7 +53,7 @@ const herdParam = {
     birdMaxSpeed: 3,
     herdSize: 20,
     animationSpeed: 5,
-    displayArrow: true
+    displayArrow: false
 };
 
 const octreeParam = {
@@ -118,6 +118,12 @@ function init () {
     }
     renderer.render(scene, camera);
     clock = new THREE.Clock();
+
+    // test
+    // const geometrys = new THREE.SphereGeometry(200, 10, 10);
+    // const materials = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true});
+    // var sphere = new THREE.Mesh(geometrys, materials);
+    // scene.add(sphere);
 }
 
 function initGUI () {
@@ -171,6 +177,7 @@ function animate () {
         for (const bird of herd) {
             bird.update(delta, herd);
             tree.updateObject(bird.model);
+            // bird.model.visible = false;
         }
         tree.update();
         stats.end();
@@ -179,6 +186,11 @@ function animate () {
             treeMesh = tree.generateGeometry();
             scene.add(treeMesh);
         }
+        // // testing
+        // const birdsInRadius = tree.getItemsInRadius(new THREE.Vector3(), 200);
+        // for (const bird of birdsInRadius) {
+        //     bird.model.visible = true;
+        // }
     }
     requestAnimationFrame(animate);
     renderer.render(scene, camera);

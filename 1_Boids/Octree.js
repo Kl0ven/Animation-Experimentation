@@ -251,7 +251,6 @@ Octree.prototype.generateGeometry = function () {
         color: 0x000000,
         wireframe: true
     });
-
     this.traverse(function (object) {
         if (object instanceof Octree) {
             const size = new THREE.Vector3();
@@ -276,6 +275,21 @@ Octree.prototype.generateGeometry = function () {
     });
 
     return container;
+};
+
+/**
+ * get items in radius at postion pos
+**/
+Octree.prototype.getItemsInRadius = function (pos, radius) {
+    const items = [];
+    for (const i of this.children) {
+        if (i instanceof THREE.Group) {
+            // console.log(i);
+        } else if (i instanceof Octree) {
+            items.push(...i.getItemsInRadius(pos, radius));
+        }
+    }
+    return items;
 };
 
 export { Octree };

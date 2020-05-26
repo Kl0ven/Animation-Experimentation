@@ -120,7 +120,6 @@ class Bird {
             this.arrowHelper.setDirection(dir.clone().applyQuaternion(quaternion.inverse()));
         }
 
-
         // Update animation speed
         this.action.timeScale = this.animationSpeed * this.velocity.length();
         this.mixer.update(delta);
