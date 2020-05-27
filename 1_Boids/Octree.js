@@ -227,9 +227,9 @@ Octree.prototype.update = function () {
 Octree.prototype.updateObject = function (object) {
     // If object is no longer inside this region
     if (!object.parent.box.containsPoint(object.position)) {
+
         // Loop through parent regions until the object is added successfully
         let oct = object.parent.parent;
-
         object.parent.remove(object, false);
 
 

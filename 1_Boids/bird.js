@@ -5,22 +5,25 @@ const maxForce = 0.05;
 const center = new THREE.Vector3();
 
 // eslint-disable-next-line no-unused-vars
-class Bird {
-    constructor (model, animation, BOUNDS, herdParam) {
-        this.model = model;
+class Bird extends THREE.Group {
+    constructor (animation, BOUNDS, herdParam) {
+        super();
         this.bounds = BOUNDS;
         this.maxSpeed = herdParam.birdMaxSpeed;
         this.animationSpeed = herdParam.animationSpeed;
-        this.perceptionRadius = 50;
         this.displayArrow = herdParam.displayArrow;
-        this.model.position.random().multiplyScalar(BOUNDS).subScalar(BOUNDS/2);
+        this.animation = animation;
+    }
+
+    init () {
+        this.perceptionRadius = 50;
+        this.position.random().multiplyScalar(this.bounds).subScalar(this.bounds / 2);
         this.velocity = new THREE.Vector3().random();
-        this.velocity.setLength(Math.random() * (this.maxSpeed+1));
+        this.velocity.setLength(Math.random() * (this.maxSpeed + 1));
         this.acceleration = new THREE.Vector3();
 
         // Init animation
-        this.animation = animation;
-        this.mixer = new AnimationMixer(this.model);
+        this.mixer = new AnimationMixer(this);
         this.action = this.mixer.clipAction(this.animation[0]);
 
         // speeding up animation
@@ -36,19 +39,18 @@ class Bird {
         if (this.displayArrow) {
             const dir = this.velocity.clone().normalize();
             this.arrowHelper = new THREE.ArrowHelper(dir, new THREE.Vector3(), 10, 0xffff00);
-            this.model.add(this.arrowHelper);
+            this.add(this.arrowHelper);
         }
-
     }
 
     toggleArrow () {
         if (!this.displayArrow) {
             const dir = this.velocity.clone().normalize();
             this.arrowHelper = new THREE.ArrowHelper(dir, new THREE.Vector3(), 10, 0xffff00);
-            this.model.add(this.arrowHelper);
+            this.add(this.arrowHelper);
             this.displayArrow = true;
         } else {
-            this.model.remove(this.arrowHelper);
+            this.remove(this.arrowHelper);
             this.displayArrow = false;
         }
     }
@@ -59,7 +61,7 @@ class Bird {
 
     centerRule () {
         const dir = new THREE.Vector3();
-        dir.subVectors(center, this.model.position);
+        dir.subVectors(center, this.position);
         this.clampForce(dir);
         return dir;
     }
@@ -69,7 +71,7 @@ class Bird {
         let total = 0;
         let d;
         for (const other of herd) {
-            d = this.model.position.distanceTo(other.model.position);
+            d = this.position.distanceTo(other.position);
 
             if (d < this.perceptionRadius) {
                 steering.add(other.velocity);
@@ -103,7 +105,7 @@ class Bird {
         this.flock(herd);
 
         // Update position, speed, accelaration
-        this.model.position.add(this.velocity);
+        this.position.add(this.velocity);
         this.velocity.add(this.acceleration);
         this.velocity.clampLength(-this.maxSpeed, this.maxSpeed);
 
@@ -111,12 +113,12 @@ class Bird {
         const dir = this.velocity.clone();
         dir.normalize();
 
-        const point = this.model.position.clone().add(dir);
-        this.model.lookAt(point);
+        const point = this.position.clone().add(dir);
+        this.lookAt(point);
 
         if (this.displayArrow && typeof this.arrowHelper != 'undefined') {
             const quaternion = new THREE.Quaternion();
-            this.model.getWorldQuaternion(quaternion);
+            this.getWorldQuaternion(quaternion);
             this.arrowHelper.setDirection(dir.clone().applyQuaternion(quaternion.inverse()));
         }
 

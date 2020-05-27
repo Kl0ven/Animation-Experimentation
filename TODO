@@ -41,6 +41,7 @@ Boids:
     ☐ Set Coeff for each Rules
     ☐ Disturb bird with mouse
     ☐ Quadtree:getItemsInRadius function @started(20-05-26 18:02)
+    ✔ Bird > extends group; then create bird then copy gltf model to bird; update this.model, this.aniùmation @done(20-05-27 14:22)
     ✘ Border ? @cancelled(20-05-22 10:32)
 
     GUI:

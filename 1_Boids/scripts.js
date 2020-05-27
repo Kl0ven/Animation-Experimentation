@@ -51,7 +51,7 @@ const herd = [];
 
 const herdParam = {
     birdMaxSpeed: 3,
-    herdSize: 20,
+    herdSize: 200,
     animationSpeed: 5,
     displayArrow: false
 };
@@ -93,9 +93,11 @@ function init () {
         let bird;
         modelGltf = gltf;
         for (let i = 0; i < herdParam.herdSize; i++) {
-            bird = new Bird(gltf.scene.clone(), gltf.animations, BOUNDS, herdParam);
+            bird = new Bird(gltf.animations, BOUNDS, herdParam);
+            bird.copy(gltf.scene);
+            bird.init();
+            tree.add(bird);
             herd.push(bird);
-            tree.add(bird.model);
         }
     }, undefined, function (error) {
         console.error(error);
@@ -149,12 +151,14 @@ function initGUI () {
         for (let i = 0; i < Math.abs(diff); i++) {
             let bird;
             if (diff > 0) {
-                bird = new Bird(modelGltf.scene.clone(), modelGltf.animations, BOUNDS, herdParam);
+                bird = new Bird(modelGltf.animations, BOUNDS, herdParam);
+                bird.copy(modelGltf.scene);
+                bird.init();
+                tree.add(bird);
                 herd.push(bird);
-                tree.add(bird.model);
             } else {
                 bird = herd.shift();
-                tree.remove(bird.model);
+                tree.remove(bird);
             }
         }
     });
@@ -175,8 +179,10 @@ function animate () {
     if (play) {
         const delta = clock.getDelta();
         for (const bird of herd) {
-            bird.update(delta, herd);
-            tree.updateObject(bird.model);
+            if (bird.parent instanceof Octree) {
+                bird.update(delta, herd);
+                tree.updateObject(bird);
+            }
             // bird.model.visible = false;
         }
         tree.update();
