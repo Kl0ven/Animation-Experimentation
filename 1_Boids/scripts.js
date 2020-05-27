@@ -32,7 +32,7 @@ const box = new THREE.Box3(
 const tree = new Octree(box, {
     maxDepth: 10,
     splitThreshold: 15,
-    joinThreshold: 10
+    joinThreshold: 7
 });
 
 // window
@@ -51,9 +51,10 @@ const herd = [];
 
 const herdParam = {
     birdMaxSpeed: 3,
-    herdSize: 200,
+    herdSize: 500,
     animationSpeed: 5,
-    displayArrow: false
+    displayArrow: false,
+    rulesRadius: 15
 };
 
 const octreeParam = {
@@ -69,7 +70,7 @@ function init () {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x282828);
-    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 2, 3000);
+    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 2, 5000);
 
     camera.position.x = initCameraX;
     camera.position.y = initCameraY;
@@ -120,12 +121,6 @@ function init () {
     }
     renderer.render(scene, camera);
     clock = new THREE.Clock();
-
-    // test
-    // const geometrys = new THREE.SphereGeometry(200, 10, 10);
-    // const materials = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true});
-    // var sphere = new THREE.Mesh(geometrys, materials);
-    // scene.add(sphere);
 }
 
 function initGUI () {
@@ -146,7 +141,7 @@ function initGUI () {
             bird.animationSpeed = Number(value);
         }
     });
-    herdFolder.add(herdParam, 'herdSize', 1, 1024).step(1).onChange(function (value) {
+    herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
         const diff = Number(value) - herd.length;
         for (let i = 0; i < Math.abs(diff); i++) {
             let bird;
@@ -168,6 +163,7 @@ function initGUI () {
             bird.toggleArrow();
         }
     });
+    herdFolder.add(herdParam, 'rulesRadius', 1, 300).listen();
 
     octreeFolder.add(octreeParam, 'displayOctree').onChange(function (value) {
         scene.remove(treeMesh);
@@ -179,11 +175,9 @@ function animate () {
     if (play) {
         const delta = clock.getDelta();
         for (const bird of herd) {
-            if (bird.parent instanceof Octree) {
-                bird.update(delta, herd);
-                tree.updateObject(bird);
-            }
-            // bird.model.visible = false;
+            const birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
+            bird.update(delta, birdsInRadius);
+            tree.updateObject(bird);
         }
         tree.update();
         stats.end();
@@ -192,11 +186,6 @@ function animate () {
             treeMesh = tree.generateGeometry();
             scene.add(treeMesh);
         }
-        // // testing
-        // const birdsInRadius = tree.getItemsInRadius(new THREE.Vector3(), 200);
-        // for (const bird of birdsInRadius) {
-        //     bird.model.visible = true;
-        // }
     }
     requestAnimationFrame(animate);
     renderer.render(scene, camera);

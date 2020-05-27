@@ -227,7 +227,6 @@ Octree.prototype.update = function () {
 Octree.prototype.updateObject = function (object) {
     // If object is no longer inside this region
     if (!object.parent.box.containsPoint(object.position)) {
-
         // Loop through parent regions until the object is added successfully
         let oct = object.parent.parent;
         object.parent.remove(object, false);
@@ -284,12 +283,23 @@ Octree.prototype.getItemsInRadius = function (pos, radius) {
     const items = [];
     for (const i of this.children) {
         if (i instanceof THREE.Group) {
-            // console.log(i);
+            // if (pos.distanceTo(i.position) < radius) {
+            items.push(i);
+            // }
         } else if (i instanceof Octree) {
-            items.push(...i.getItemsInRadius(pos, radius));
+            if (i.containedInRadius(pos, radius)) {
+                items.push(...i.getItemsInRadius(pos, radius));
+            }
         }
     }
     return items;
 };
 
+/**
+ * check in sphere within boxe
+**/
+Octree.prototype.containedInRadius = function (pos, radius) {
+    // return pos.distanceTo(this.box.min) < radius || pos.distanceTo(this.box.max) < radius;
+    return this.box.distanceToPoint(pos) < radius;
+};
 export { Octree };

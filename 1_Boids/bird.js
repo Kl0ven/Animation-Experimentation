@@ -68,18 +68,11 @@ class Bird extends THREE.Group {
 
     alignRule (herd) {
         const steering = new THREE.Vector3();
-        let total = 0;
-        let d;
         for (const other of herd) {
-            d = this.position.distanceTo(other.position);
-
-            if (d < this.perceptionRadius) {
-                steering.add(other.velocity);
-                total++;
-            }
+            steering.add(other.velocity);
         }
-        if (total > 0) {
-            steering.divideScalar(total);
+        if (herd.length > 0) {
+            steering.divideScalar(herd.length);
             steering.setLength(this.maxSpeed);
             steering.sub(this.velocity);
             this.clampForce(steering);
