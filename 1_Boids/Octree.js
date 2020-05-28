@@ -296,7 +296,7 @@ Octree.prototype.getItemsInRadius = function (pos, radius) {
 };
 
 /**
- * check in sphere within boxe
+ * check if part of the sphere is within boxe
 **/
 Octree.prototype.containedInRadius = function (pos, radius) {
     // return pos.distanceTo(this.box.min) < radius || pos.distanceTo(this.box.max) < radius;

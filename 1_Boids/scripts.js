@@ -50,15 +50,21 @@ const lookAtCenter = new THREE.Vector3(0, 0, 0);
 const herd = [];
 
 const herdParam = {
-    birdMaxSpeed: 3,
     herdSize: 500,
-    animationSpeed: 5,
-    displayArrow: false,
     rulesRadius: 15
 };
 
 const octreeParam = {
     displayOctree: false
+};
+
+const birdParam = {
+    birdMaxSpeed: 3,
+    animationSpeed: 5,
+    displayArrow: false,
+    centerRuleCoef: 1,
+    alingRuleCoef: 1,
+    cohesionRuleCoef: 1
 };
 
 // initialize canvas
@@ -94,7 +100,7 @@ function init () {
         let bird;
         modelGltf = gltf;
         for (let i = 0; i < herdParam.herdSize; i++) {
-            bird = new Bird(gltf.animations, BOUNDS, herdParam);
+            bird = new Bird(gltf.animations, BOUNDS, birdParam);
             bird.copy(gltf.scene);
             bird.init();
             tree.add(bird);
@@ -127,26 +133,48 @@ function initGUI () {
     const gui = new GUI();
     const herdFolder = gui.addFolder('Herd');
     const octreeFolder = gui.addFolder('Octree');
-
+    const birdFolder = gui.addFolder('Bird');
     herdFolder.open();
     octreeFolder.open();
+    birdFolder.open();
 
-    herdFolder.add(herdParam, 'birdMaxSpeed', 0.01, 10).step(0.01).onChange(function (value) {
+    birdFolder.add(birdParam, 'birdMaxSpeed', 0.01, 10).step(0.01).onChange(function (value) {
         for (const bird of herd) {
             bird.maxSpeed = Number(value);
         }
     });
-    herdFolder.add(herdParam, 'animationSpeed', 0, 10).step(0.1).onChange(function (value) {
+    birdFolder.add(birdParam, 'animationSpeed', 0, 10).step(0.1).onChange(function (value) {
         for (const bird of herd) {
             bird.animationSpeed = Number(value);
         }
     });
+    birdFolder.add(birdParam, 'displayArrow').onChange(function (value) {
+        for (const bird of herd) {
+            bird.toggleArrow();
+        }
+    });
+    birdFolder.add(birdParam, 'centerRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setCenterRuleCoef(Number(value));
+        }
+    });
+    birdFolder.add(birdParam, 'alingRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setAlingRuleCoef(Number(value));
+        }
+    });
+    birdFolder.add(birdParam, 'cohesionRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setCohesionRuleCoef(Number(value));
+        }
+    });
+
     herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
         const diff = Number(value) - herd.length;
         for (let i = 0; i < Math.abs(diff); i++) {
             let bird;
             if (diff > 0) {
-                bird = new Bird(modelGltf.animations, BOUNDS, herdParam);
+                bird = new Bird(modelGltf.animations, BOUNDS, birdParam);
                 bird.copy(modelGltf.scene);
                 bird.init();
                 tree.add(bird);
@@ -158,11 +186,6 @@ function initGUI () {
         }
     });
 
-    herdFolder.add(herdParam, 'displayArrow').onChange(function (value) {
-        for (const bird of herd) {
-            bird.toggleArrow();
-        }
-    });
     herdFolder.add(herdParam, 'rulesRadius', 1, 300).listen();
 
     octreeFolder.add(octreeParam, 'displayOctree').onChange(function (value) {
@@ -171,26 +194,31 @@ function initGUI () {
 }
 
 function animate () {
-    stats.begin();
+    stats.update();
+
+    requestAnimationFrame(animate);
+    render();
+};
+
+function render () {
     if (play) {
         const delta = clock.getDelta();
         for (const bird of herd) {
-            const birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
+            // laggy
+            // birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
+            const birdsInRadius = bird.parent.children;
             bird.update(delta, birdsInRadius);
             tree.updateObject(bird);
         }
         tree.update();
-        stats.end();
         if (octreeParam.displayOctree) {
             scene.remove(treeMesh);
             treeMesh = tree.generateGeometry();
             scene.add(treeMesh);
         }
+        renderer.render(scene, camera);
     }
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-};
-
+}
 
 (function () {
     init();

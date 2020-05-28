@@ -4,15 +4,17 @@ import { AnimationMixer } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/src/a
 const maxForce = 0.05;
 const center = new THREE.Vector3();
 
-// eslint-disable-next-line no-unused-vars
 class Bird extends THREE.Group {
-    constructor (animation, BOUNDS, herdParam) {
+    constructor (animation, BOUNDS, birdParam) {
         super();
         this.bounds = BOUNDS;
-        this.maxSpeed = herdParam.birdMaxSpeed;
-        this.animationSpeed = herdParam.animationSpeed;
-        this.displayArrow = herdParam.displayArrow;
+        this.maxSpeed = birdParam.birdMaxSpeed;
+        this.animationSpeed = birdParam.animationSpeed;
+        this.displayArrow = birdParam.displayArrow;
         this.animation = animation;
+        this.centerRuleCoef = birdParam.centerRuleCoef;
+        this.alingRuleCoef = birdParam.alingRuleCoef;
+        this.cohesionRuleCoef = birdParam.cohesionRuleCoef;
     }
 
     init () {
@@ -80,17 +82,60 @@ class Bird extends THREE.Group {
         return steering;
     }
 
+    cohesionRule (herd) {
+        const steering = new THREE.Vector3();
+        for (const other of herd) {
+            steering.add(other.position);
+        }
+        if (herd.length > 0) {
+            steering.divideScalar(herd.length);
+            steering.sub(this.position);
+            steering.setLength(this.maxSpeed);
+            steering.sub(this.velocity);
+            this.clampForce(steering);
+        }
+        return steering;
+    }
+    // separation(herd) {
+    //     let steering = createVector();
+    //     for (let other of boids) {
+    //         let d = dist(
+    //             this.position.x,
+    //             this.position.y,
+    //             other.position.x,
+    //             other.position.y
+    //         );
+    //         if (other != this && d < perceptionRadius) {
+    //             let diff = p5.Vector.sub(this.position, other.position);
+    //             diff.div(d * d);
+    //             steering.add(diff);
+    //             total++;
+    //         }
+    //     }
+    //     if (total > 0) {
+    //         steering.div(total);
+    //         steering.setMag(this.maxSpeed);
+    //         steering.sub(this.velocity);
+    //         steering.limit(this.maxForce);
+    //     }
+    //     return steering;
+    // }
+
     flock (herd) {
         // Reset acceleration to 0
         this.acceleration.set(0, 0, 0);
 
         // Applie Center_Rule
-        const centerForce = this.centerRule();
+        const centerForce = this.centerRule().multiplyScalar(this.centerRuleCoef);
         this.acceleration.add(centerForce);
 
         // Applie AlignRule
-        const alignForce = this.alignRule(herd);
+        const alignForce = this.alignRule(herd).multiplyScalar(this.alingRuleCoef);
         this.acceleration.add(alignForce);
+
+        // Applie cohesionRule
+        const cohesionRule = this.alignRule(herd).multiplyScalar(this.cohesionRuleCoef);
+        this.acceleration.add(cohesionRule);
     }
 
     update (delta, herd) {
@@ -118,6 +163,16 @@ class Bird extends THREE.Group {
         // Update animation speed
         this.action.timeScale = this.animationSpeed * this.velocity.length();
         this.mixer.update(delta);
+    }
+
+    setCenterRuleCoef (coef) {
+        this.centerRuleCoef = coef;
+    }
+    setAlingRuleCoef(coef) {
+        this.alingRuleCoef = coef;
+    }
+    setCohesionRuleCoef(coef) {
+        this.cohesionRuleCoef = coef;
     }
 }
 

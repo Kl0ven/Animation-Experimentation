@@ -24,13 +24,13 @@ Boids:
   Research:
     ✔ Research Boids @done(20-05-22 10:32)
     ✔ Research Model @done(20-05-22 04:44)
-    ☐ The Computational Beauty of Nature
+    ✔ The Computational Beauty of Nature @done(20-05-27 16:44)
     
   TO DO:
     Implement Boid algorithm:
       ☐ Separation
       ✔ Alignment @done(20-05-23 14:02)
-      ☐ Cohesion
+      ✔ Cohesion @done(20-05-27 18:54)
     ✔ Add birds models @done(20-05-22 04:44)
     ✔ Add colors @done(20-05-22 04:44)
     ✔ Animate Birds @started(20-05-22 04:54) @done(20-05-22 06:55) @lasted(2h1m59s)
@@ -40,7 +40,7 @@ Boids:
     ✔ Match animation speed to speed @started(20-05-23 13:22) @done(20-05-23 13:30) @lasted(8m21s)
     ☐ Set Coeff for each Rules
     ☐ Disturb bird with mouse
-    ☐ Quadtree:getItemsInRadius function @started(20-05-26 18:02)
+    ✔ Quadtree:getItemsInRadius function @started(20-05-26 18:02) @done(20-05-27 16:44) @lasted(22h42m35s)
     ✔ Bird > extends group; then create bird then copy gltf model to bird; update this.model, this.aniùmation @done(20-05-27 14:22)
     ✘ Border ? @cancelled(20-05-22 10:32)
 
@@ -50,13 +50,15 @@ Boids:
 
     Optimisation:
       ☐ Refacto Rules
-      ☐ QuadTree
-      ☐ Space Subdivision
+      ✔ QuadTree @done(20-05-27 16:44)
+      ✔ Space Subdivision @done(20-05-27 16:44)
+      ☐ does not use bird.parent.children use getItemsInRadius instead  but now its laggy AF 
 
     Bug:
       ✔ LookAtDirection not working, pointing at center (lookAt World coord, dir local coord) @done(20-05-25 20:46)
       ✔ Octree not showing up @done(20-05-24 18:57)
       ✔ When speed is to high,Octree break @done(20-05-24 22:37)
+      ✘ Slow down come from getItemsInRadius => maybe old box are not remove @cancelled(20-05-28 22:00)
   
   Report:
     Desktop:
