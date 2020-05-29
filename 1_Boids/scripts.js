@@ -23,39 +23,49 @@ let clock;
 let modelGltf;
 let treeMesh;
 
-const octreeSize = 1000;
+let play = true;
+const octreeSize = 10000;
 const box = new THREE.Box3(
     new THREE.Vector3(-octreeSize, -octreeSize, -octreeSize),
     new THREE.Vector3(octreeSize, octreeSize, octreeSize)
 );
 const tree = new Octree(box, {
     maxDepth: 10,
-    splitThreshold: 5,
-    joinThreshold: 3
+    splitThreshold: 15,
+    joinThreshold: 7
 });
 
 // window
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
 
-const BOUNDS = 200;
+const BOUNDS = 1000;
 
 // camera
 const initCameraX = 0;
 const initCameraY = 0;
-const initCameraZ = BOUNDS * 2;
+const initCameraZ = 500;
 const lookAtCenter = new THREE.Vector3(0, 0, 0);
 
 const herd = [];
 
 const herdParam = {
-    birdMaxSpeed: 3,
-    herdSize: 200,
-    animationSpeed: 5
+    herdSize: 600,
+    rulesRadius: 30
 };
 
 const octreeParam = {
     displayOctree: false
+};
+
+const birdParam = {
+    birdMaxSpeed: 10,
+    animationSpeed: 5,
+    displayArrow: false,
+    centerRuleCoef: 0.9,
+    alingRuleCoef: 1,
+    cohesionRuleCoef: 1.4,
+    separationRuleCoef: 1.4
 };
 
 // initialize canvas
@@ -67,7 +77,7 @@ function init () {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x282828);
-    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 2, 3000);
+    camera = new THREE.PerspectiveCamera(75, windowX / windowY, 2, 5000);
 
     camera.position.x = initCameraX;
     camera.position.y = initCameraY;
@@ -91,9 +101,11 @@ function init () {
         let bird;
         modelGltf = gltf;
         for (let i = 0; i < herdParam.herdSize; i++) {
-            bird = new Bird(gltf.scene.clone(), gltf.animations, BOUNDS, herdParam);
+            bird = new Bird(gltf.animations, BOUNDS, birdParam);
+            bird.copy(gltf.scene);
+            bird.init();
+            tree.add(bird);
             herd.push(bird);
-            tree.add(bird.model);
         }
     }, undefined, function (error) {
         console.error(error);
@@ -101,6 +113,11 @@ function init () {
 
     window.addEventListener('resize', function () {
         renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    window.addEventListener('keypress', function (e) {
+        if (e.keyCode == 32) {
+            play = !play;
+        }
     });
 
     scene.add(tree);
@@ -117,34 +134,64 @@ function initGUI () {
     const gui = new GUI();
     const herdFolder = gui.addFolder('Herd');
     const octreeFolder = gui.addFolder('Octree');
-
+    const birdFolder = gui.addFolder('Bird');
     herdFolder.open();
     octreeFolder.open();
+    birdFolder.open();
 
-    herdFolder.add(herdParam, 'birdMaxSpeed', 0.01, 10).step(0.01).onChange(function (value) {
+    birdFolder.add(birdParam, 'birdMaxSpeed', 0.01, 10).step(0.01).onChange(function (value) {
         for (const bird of herd) {
             bird.maxSpeed = Number(value);
         }
     });
-    herdFolder.add(herdParam, 'animationSpeed', 0, 10).step(0.1).onChange(function (value) {
+    birdFolder.add(birdParam, 'animationSpeed', 0, 10).step(0.1).onChange(function (value) {
         for (const bird of herd) {
             bird.animationSpeed = Number(value);
         }
     });
-    herdFolder.add(herdParam, 'herdSize', 1, 1024).step(1).onChange(function (value) {
+    birdFolder.add(birdParam, 'displayArrow').onChange(function (value) {
+        for (const bird of herd) {
+            bird.toggleArrow();
+        }
+    });
+    birdFolder.add(birdParam, 'centerRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setCenterRuleCoef(Number(value));
+        }
+    });
+    birdFolder.add(birdParam, 'alingRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setAlingRuleCoef(Number(value));
+        }
+    });
+    birdFolder.add(birdParam, 'cohesionRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setCohesionRuleCoef(Number(value));
+        }
+    });
+    birdFolder.add(birdParam, 'separationRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setSeparationRule(Number(value));
+        }
+    });
+    herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
         const diff = Number(value) - herd.length;
         for (let i = 0; i < Math.abs(diff); i++) {
             let bird;
             if (diff > 0) {
-                bird = new Bird(modelGltf.scene.clone(), modelGltf.animations, BOUNDS, herdParam);
+                bird = new Bird(modelGltf.animations, BOUNDS, birdParam);
+                bird.copy(modelGltf.scene);
+                bird.init();
+                tree.add(bird);
                 herd.push(bird);
-                tree.add(bird.model);
             } else {
                 bird = herd.shift();
-                tree.remove(bird.model);
+                tree.remove(bird);
             }
         }
     });
+
+    herdFolder.add(herdParam, 'rulesRadius', 1, 300).listen();
 
     octreeFolder.add(octreeParam, 'displayOctree').onChange(function (value) {
         scene.remove(treeMesh);
@@ -152,23 +199,30 @@ function initGUI () {
 }
 
 function animate () {
-    stats.begin();
-    const delta = clock.getDelta();
-    for (const bird of herd) {
-        bird.update(delta, herd);
-        tree.updateObject(bird.model);
-    }
-    tree.update();
-    stats.end();
-    if (octreeParam.displayOctree) {
-        scene.remove(treeMesh);
-        treeMesh = tree.generateGeometry();
-        scene.add(treeMesh);
-    }
+    stats.update();
+
     requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+    render();
 };
 
+function render () {
+    if (play) {
+        const delta = clock.getDelta();
+        for (const bird of herd) {
+            const birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
+            // const birdsInRadius = bird.parent.children;
+            bird.update(delta, birdsInRadius);
+            tree.updateObject(bird);
+        }
+        tree.update();
+        if (octreeParam.displayOctree) {
+            scene.remove(treeMesh);
+            treeMesh = tree.generateGeometry();
+            scene.add(treeMesh);
+        }
+        renderer.render(scene, camera);
+    }
+}
 
 (function () {
     init();

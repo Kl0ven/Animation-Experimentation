@@ -229,7 +229,6 @@ Octree.prototype.updateObject = function (object) {
     if (!object.parent.box.containsPoint(object.position)) {
         // Loop through parent regions until the object is added successfully
         let oct = object.parent.parent;
-
         object.parent.remove(object, false);
 
 
@@ -251,7 +250,6 @@ Octree.prototype.generateGeometry = function () {
         color: 0x000000,
         wireframe: true
     });
-
     this.traverse(function (object) {
         if (object instanceof Octree) {
             const size = new THREE.Vector3();
@@ -278,4 +276,30 @@ Octree.prototype.generateGeometry = function () {
     return container;
 };
 
+/**
+ * get items in radius at postion pos
+**/
+Octree.prototype.getItemsInRadius = function (pos, radius) {
+    const items = [];
+    for (const i of this.children) {
+        if (i instanceof THREE.Group) {
+            // if (pos.distanceTo(i.position) < radius) {
+            items.push(i);
+            // }
+        } else if (i instanceof Octree) {
+            if (i.containedInRadius(pos, radius)) {
+                items.push(...i.getItemsInRadius(pos, radius));
+            }
+        }
+    }
+    return items;
+};
+
+/**
+ * check if part of the sphere is within boxe
+**/
+Octree.prototype.containedInRadius = function (pos, radius) {
+    // return pos.distanceTo(this.box.min) < radius || pos.distanceTo(this.box.max) < radius;
+    return this.box.distanceToPoint(pos) < radius;
+};
 export { Octree };
