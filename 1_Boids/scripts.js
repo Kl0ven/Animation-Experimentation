@@ -39,19 +39,19 @@ const tree = new Octree(box, {
 let windowX = window.innerWidth;
 let windowY = window.innerHeight;
 
-const BOUNDS = 200;
+const BOUNDS = 1000;
 
 // camera
 const initCameraX = 0;
 const initCameraY = 0;
-const initCameraZ = BOUNDS * 2;
+const initCameraZ = 500;
 const lookAtCenter = new THREE.Vector3(0, 0, 0);
 
 const herd = [];
 
 const herdParam = {
-    herdSize: 500,
-    rulesRadius: 15
+    herdSize: 600,
+    rulesRadius: 30
 };
 
 const octreeParam = {
@@ -59,12 +59,13 @@ const octreeParam = {
 };
 
 const birdParam = {
-    birdMaxSpeed: 3,
+    birdMaxSpeed: 10,
     animationSpeed: 5,
     displayArrow: false,
-    centerRuleCoef: 1,
+    centerRuleCoef: 0.9,
     alingRuleCoef: 1,
-    cohesionRuleCoef: 1
+    cohesionRuleCoef: 1.4,
+    separationRuleCoef: 1.4
 };
 
 // initialize canvas
@@ -76,7 +77,7 @@ function init () {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x282828);
-    camera = new THREE.PerspectiveCamera(20, windowX / windowY, 2, 5000);
+    camera = new THREE.PerspectiveCamera(75, windowX / windowY, 2, 5000);
 
     camera.position.x = initCameraX;
     camera.position.y = initCameraY;
@@ -168,7 +169,11 @@ function initGUI () {
             bird.setCohesionRuleCoef(Number(value));
         }
     });
-
+    birdFolder.add(birdParam, 'separationRuleCoef', 0, 2).step(0.1).onChange(function (value) {
+        for (const bird of herd) {
+            bird.setSeparationRule(Number(value));
+        }
+    });
     herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
         const diff = Number(value) - herd.length;
         for (let i = 0; i < Math.abs(diff); i++) {
@@ -204,9 +209,8 @@ function render () {
     if (play) {
         const delta = clock.getDelta();
         for (const bird of herd) {
-            // laggy
-            // birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
-            const birdsInRadius = bird.parent.children;
+            const birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
+            // const birdsInRadius = bird.parent.children;
             bird.update(delta, birdsInRadius);
             tree.updateObject(bird);
         }

@@ -28,7 +28,7 @@ Boids:
     
   TO DO:
     Implement Boid algorithm:
-      ☐ Separation
+      ✔ Separation @done(20-05-29 13:50)
       ✔ Alignment @done(20-05-23 14:02)
       ✔ Cohesion @done(20-05-27 18:54)
     ✔ Add birds models @done(20-05-22 04:44)
@@ -38,7 +38,7 @@ Boids:
     ✔ Attract Birds to the center @done(20-05-22 14:30)
     ✔ Make the birds face the right orientation @done(20-05-22 15:41)
     ✔ Match animation speed to speed @started(20-05-23 13:22) @done(20-05-23 13:30) @lasted(8m21s)
-    ☐ Set Coeff for each Rules
+    ✔ Set Coeff for each Rules @done(20-05-29 13:50)
     ☐ Disturb bird with mouse
     ✔ Quadtree:getItemsInRadius function @started(20-05-26 18:02) @done(20-05-27 16:44) @lasted(22h42m35s)
     ✔ Bird > extends group; then create bird then copy gltf model to bird; update this.model, this.aniùmation @done(20-05-27 14:22)
@@ -49,7 +49,7 @@ Boids:
       ✔ Display Arrow @done(20-05-25 20:14)
 
     Optimisation:
-      ☐ Refacto Rules
+      ✔ Refacto Rules @done(20-05-29 13:50)
       ✔ QuadTree @done(20-05-27 16:44)
       ✔ Space Subdivision @done(20-05-27 16:44)
       ☐ does not use bird.parent.children use getItemsInRadius instead  but now its laggy AF 
