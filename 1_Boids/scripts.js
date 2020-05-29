@@ -54,7 +54,8 @@ const herdParam = {
 };
 
 const octreeParam = {
-    displayOctree: false
+    displayOctree: false,
+    useSearchMethode: false
 };
 
 const birdParam = {
@@ -204,6 +205,8 @@ function initGUI () {
 
     herdFolder.add(herdParam, 'rulesRadius', 1, 300).listen();
 
+    octreeFolder.add(octreeParam, 'useSearchMethode').listen();
+
     octreeFolder.add(octreeParam, 'displayOctree').onChange(function (value) {
         scene.remove(treeMesh);
     });
@@ -219,9 +222,13 @@ function animate () {
 function render () {
     if (play) {
         const delta = clock.getDelta();
+        let birdsInRadius;
         for (const bird of herd) {
-            const birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
-            // const birdsInRadius = bird.parent.children;
+            if (octreeParam.useSearchMethode) {
+                birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
+            } else {
+                birdsInRadius = bird.parent.children;
+            }
             bird.update(delta, birdsInRadius, predatorParam);
             tree.updateObject(bird);
         }
