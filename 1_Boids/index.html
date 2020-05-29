@@ -1,6 +1,10 @@
 <html>
 	<head>
 		<title>Three.js Boids</title>
+		<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
+		<link rel="modulepreload" href="./bird.js">
+		<link rel="modulepreload" href="./Octree.js">
+		<script type="module" src="./scripts.js"></script>
 		<style>
 			body { margin: 0; }
 			canvas { width: 640px; height: 360px }
@@ -8,7 +12,5 @@
 	</head>
 	<body>
 		<div id="canvas"></div>
-		<script src="https://cdn.jsdelivr.net/npm/stats.js@0.17.0/build/stats.min.js"></script>
-		<script type="module" src="./scripts.js"></script>
 	</body>
 </html>

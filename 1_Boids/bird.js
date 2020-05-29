@@ -36,8 +36,6 @@ class Bird extends THREE.Group {
         const clipDuration = this.animation[0].duration;
         this.action.time = Math.random() * clipDuration;
 
-        this.scale.set(5, 5, 5);
-
         // Play
         this.action.play();
 
@@ -121,8 +119,18 @@ class Bird extends THREE.Group {
         }
         return steering;
     }
+    predatorRule (predator) {
+        const dir = new THREE.Vector3().subVectors(this.position, predator.position);
+        let steering = new THREE.Vector3();
+        dir.z = 0;
+        const dist = dir.length();
+        if (dist < predator.radius) {
+            steering = dir;
+        }
+        return steering;
+    }
 
-    flock (herd) {
+    flock (herd, predator) {
         // Reset acceleration to 0
         this.acceleration.set(0, 0, 0);
 
@@ -141,11 +149,15 @@ class Bird extends THREE.Group {
         // Applie separationRule
         const separationRule = this.separationRule(herd).multiplyScalar(this.separationRuleCoef);
         this.acceleration.add(separationRule);
+
+        // Applie predatorRule
+        const predatorRule = this.predatorRule(predator).multiplyScalar(predator.ruleCoef);
+        this.acceleration.add(predatorRule);
     }
 
-    update (delta, herd) {
+    update (delta, herd, predator) {
         // Update Bird
-        this.flock(herd);
+        this.flock(herd, predator);
 
         // Update position, speed, accelaration
         this.position.add(this.velocity);

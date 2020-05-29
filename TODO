@@ -39,7 +39,7 @@ Boids:
     ✔ Make the birds face the right orientation @done(20-05-22 15:41)
     ✔ Match animation speed to speed @started(20-05-23 13:22) @done(20-05-23 13:30) @lasted(8m21s)
     ✔ Set Coeff for each Rules @done(20-05-29 13:50)
-    ☐ Disturb bird with mouse
+    ✔ Disturb bird with mouse @done(20-05-29 18:03)
     ✔ Quadtree:getItemsInRadius function @started(20-05-26 18:02) @done(20-05-27 16:44) @lasted(22h42m35s)
     ✔ Bird > extends group; then create bird then copy gltf model to bird; update this.model, this.aniùmation @done(20-05-27 14:22)
     ✘ Border ? @cancelled(20-05-22 10:32)
@@ -52,7 +52,7 @@ Boids:
       ✔ Refacto Rules @done(20-05-29 13:50)
       ✔ QuadTree @done(20-05-27 16:44)
       ✔ Space Subdivision @done(20-05-27 16:44)
-      ☐ does not use bird.parent.children use getItemsInRadius instead  but now its laggy AF 
+      ✔ does not use bird.parent.children use getItemsInRadius instead  but now its laggy AF @done(20-05-29 18:03)
 
     Bug:
       ✔ LookAtDirection not working, pointing at center (lookAt World coord, dir local coord) @done(20-05-25 20:46)
@@ -62,9 +62,9 @@ Boids:
   
   Report:
     Desktop:
-      ✔ Perf : 96 @done(20-05-22 04:43)
+      ✔ Perf : 72 @done(20-05-29 18:24)
     Mobile:
-      ✔ Perf : 97 @done(20-05-22 04:43)
+      ✔ Perf : 72 @done(20-05-29 18:24)
     
 
 

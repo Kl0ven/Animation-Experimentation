@@ -2,7 +2,6 @@
 'use strict';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.116.1/build/three.module.js';
 import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/libs/dat.gui.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/loaders/GLTFLoader.js';
 import { Bird } from './bird.js';
 import { Octree } from './Octree.js';
@@ -60,12 +59,18 @@ const octreeParam = {
 
 const birdParam = {
     birdMaxSpeed: 10,
-    animationSpeed: 5,
+    animationSpeed: 3,
     displayArrow: false,
     centerRuleCoef: 0.9,
     alingRuleCoef: 1,
     cohesionRuleCoef: 1.4,
     separationRuleCoef: 1.4
+};
+
+const predatorParam = {
+    position: new THREE.Vector3(10000, 10000, 0),
+    radius: 200,
+    ruleCoef: 1
 };
 
 // initialize canvas
@@ -85,7 +90,6 @@ function init () {
     camera.lookAt(lookAtCenter);
 
     scene.add(camera);
-    new OrbitControls(camera, renderer.domElement);
 
     container.appendChild(renderer.domElement);
 
@@ -107,6 +111,7 @@ function init () {
             tree.add(bird);
             herd.push(bird);
         }
+        animate();
     }, undefined, function (error) {
         console.error(error);
     });
@@ -120,6 +125,10 @@ function init () {
         }
     });
 
+    window.addEventListener('mousemove', function (e) {
+        predatorParam.position.x = e.clientX - window.innerWidth/2;
+        predatorParam.position.y = -(e.clientY - window.innerHeight/2);
+    }, false);
     scene.add(tree);
 
     if (octreeParam.displayOctree) {
@@ -139,7 +148,7 @@ function initGUI () {
     octreeFolder.open();
     birdFolder.open();
 
-    birdFolder.add(birdParam, 'birdMaxSpeed', 0.01, 10).step(0.01).onChange(function (value) {
+    birdFolder.add(birdParam, 'birdMaxSpeed', 0.01, 15).step(0.01).onChange(function (value) {
         for (const bird of herd) {
             bird.maxSpeed = Number(value);
         }
@@ -174,6 +183,8 @@ function initGUI () {
             bird.setSeparationRule(Number(value));
         }
     });
+    birdFolder.add(predatorParam, 'ruleCoef', 0, 5).step(0.1).listen();
+
     herdFolder.add(herdParam, 'herdSize', 1, 1000).step(1).onChange(function (value) {
         const diff = Number(value) - herd.length;
         for (let i = 0; i < Math.abs(diff); i++) {
@@ -211,7 +222,7 @@ function render () {
         for (const bird of herd) {
             const birdsInRadius = tree.getItemsInRadius(bird.position, herdParam.rulesRadius);
             // const birdsInRadius = bird.parent.children;
-            bird.update(delta, birdsInRadius);
+            bird.update(delta, birdsInRadius, predatorParam);
             tree.updateObject(bird);
         }
         tree.update();
@@ -220,6 +231,8 @@ function render () {
             treeMesh = tree.generateGeometry();
             scene.add(treeMesh);
         }
+        predatorParam.position.x = 10000;
+        predatorParam.position.y = 10000;
         renderer.render(scene, camera);
     }
 }
@@ -227,5 +240,5 @@ function render () {
 (function () {
     init();
     initGUI();
-    animate();
+    // animate();
 })();
