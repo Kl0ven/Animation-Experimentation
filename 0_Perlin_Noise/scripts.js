@@ -36,7 +36,9 @@ const sizeY = 3000;
 const initCameraX = sizeX / 2;
 const initCameraY = sizeY / 2 - 2500;
 const initCameraZ = 1000;
-const lookAtCenter = new THREE.Vector3(sizeX / 2, sizeY / 2, 400);
+const lookAtHeight = 400;
+const lookAtCenter = new THREE.Vector3(sizeX / 2, sizeY / 2, lookAtHeight);
+const lookAtPoint = lookAtCenter.clone();
 
 // shapes
 const gridSize = 50;
@@ -55,7 +57,7 @@ const halfWidth = windowX / 2;
 const halfHeight = windowX / 2;
 
 const cameraParam = {
-    maxOffsetX: 800,
+    maxOffsetX: 300,
     YMin: -300,
     YMax: 800
 };
@@ -89,6 +91,8 @@ function init () {
     camera.position.y = initCameraY;
     camera.position.z = initCameraZ;
     camera.lookAt(lookAtCenter);
+    camera.velocity = new THREE.Vector3();
+    camera.acceleration = new THREE.Vector3();
 
     scene.add(camera);
     // var controls = new OrbitControls(camera, renderer.domElement);
@@ -153,10 +157,13 @@ function init () {
     container.addEventListener('mousemove', e => {
         const offsetX = e.clientX - halfWidth;
         const offsetY = e.clientY - halfHeight;
-        camera.position.x = map(offsetX, -halfWidth, halfWidth, cameraParam.maxOffsetX, -cameraParam.maxOffsetX) + initCameraX;
+        lookAtCenter.x = map(offsetX, -halfWidth, halfWidth, - cameraParam.maxOffsetX, cameraParam.maxOffsetX) + (sizeX / 2);
         lookAtCenter.z = map(offsetY, -halfHeight, halfHeight, cameraParam.YMax, cameraParam.YMin);
-        camera.up = new THREE.Vector3(0, 0, 1);
-        camera.lookAt(lookAtCenter);
+    });
+
+    container.addEventListener('mouseleave', e => {
+        lookAtCenter.x = sizeX / 2;
+        lookAtCenter.z = lookAtHeight;
     });
 
     window.addEventListener('resize', function () {
@@ -230,11 +237,29 @@ function animate () {
         camera.near = 1;
         camera.updateProjectionMatrix();
     }
+    moveCamera();
     requestAnimationFrame(animate);
     // renderer.render(scene, camera);
     composer.render();
 };
 
+function moveCamera () {
+    camera.acceleration.set(0, 0, 0);
+    const steering = lookAtCenter.clone();
+    steering.sub(lookAtPoint);
+    console.log(steering.length());
+    if (steering.length() > 15) {
+        steering.setLength(20).sub(camera.velocity);
+        camera.acceleration.add(steering);
+
+        lookAtPoint.add(camera.velocity);
+        camera.velocity.add(camera.acceleration);
+    } else {
+        lookAtPoint.copy(lookAtCenter);
+    }
+    camera.up = new THREE.Vector3(0, 0, 1);
+    camera.lookAt(lookAtPoint);
+}
 
 function getLocalHeight (y, yMax) {
     const half = yMax / 2;
