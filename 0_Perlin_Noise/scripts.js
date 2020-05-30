@@ -5,7 +5,6 @@ import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examp
 import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/postprocessing/UnrealBloomPass.js';
 
-
 import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/libs/dat.gui.module.js';
 const bloomParam = {
     exposure: 2,
@@ -66,7 +65,12 @@ const terrainParam = {
     speed: 0.05,
     isLine: false
 };
-
+const valleyParam = {
+    valleyEnd: 0.2,
+    plateauStart: 0.40,
+    valleyHeight: 1,
+    plateauHeight: 350
+};
 const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
 
 // initialize canvas
@@ -87,7 +91,7 @@ function init () {
     camera.lookAt(lookAtCenter);
 
     scene.add(camera);
-
+    // var controls = new OrbitControls(camera, renderer.domElement);
     container.appendChild(renderer.domElement);
     // scene.fog = new THREE.FogExp2(0x000000, 0.0004);
 
@@ -110,19 +114,28 @@ function init () {
 
     for (let y = 0; y < gridY - 1; y++) {
         for (let x = 0; x < gridX - 1; x++) {
-            geom.vertices.push(grid[y][x]);
-            geom.vertices.push(grid[y][x + 1]);
-            geom.vertices.push(grid[y + 1][x]);
-            geom.vertices.push(grid[y + 1][x + 1]);
+            if (terrainParam.isLine) {
+                geom.vertices.push(grid[y][x]);
+                geom.vertices.push(grid[y][x + 1]);
+                geom.vertices.push(grid[y + 1][x]);
+                geom.vertices.push(grid[y + 1][x + 1]);
+            } else {
+                geom.vertices.push(grid[y + 1][x]);
+                geom.vertices.push(grid[y + 1][x + 1]);
+
+                geom.vertices.push(grid[y + 1][x + 1]);
+                geom.vertices.push(grid[y][x]);
+
+                geom.vertices.push(grid[y][x]);
+                geom.vertices.push(grid[y + 1][x]);
+            }
         }
     }
 
     const mat = new THREE.LineBasicMaterial({ color: 0x67ff67, linewidth: 1 });
-    if (terrainParam.isLine) {
-        wireframe = new THREE.LineSegments(geom, mat);
-    } else {
-        wireframe = new THREE.Line(geom, mat);
-    }
+
+    wireframe = new THREE.LineSegments(geom, mat);
+    // wireframe = new THREE.Line(geom, mat);
 
     scene.add(wireframe);
 
@@ -188,6 +201,11 @@ function initGUI () {
         }
         init();
     });
+
+    terrain.add(valleyParam, 'valleyEnd', 0, 1).step(0.01).listen();
+    terrain.add(valleyParam, 'plateauStart', 0, 1).step(0.01).listen();
+    terrain.add(valleyParam, 'valleyHeight', 0, 500).step(1).listen();
+    terrain.add(valleyParam, 'plateauHeight', 200, 1000).step(10).listen();
 }
 
 function animate () {
@@ -197,7 +215,8 @@ function animate () {
     for (let y = 0; y < gridY; y++) {
         xoff = 0;
         for (let x = 0; x < gridX; x++) {
-            const height = map(noise.simplex2(xoff, yoff), -1, 1, -terrainParam.amplitude, terrainParam.amplitude);
+            const localHeight = getLocalHeight(x, gridX);
+            const height = map(noise.simplex2(xoff, yoff), -1, 1, -terrainParam.amplitude + localHeight, terrainParam.amplitude + localHeight);
             grid[y][x].z = height;
             xoff += scale;
         }
@@ -216,6 +235,23 @@ function animate () {
     composer.render();
 };
 
+
+function getLocalHeight (y, yMax) {
+    const half = yMax / 2;
+    const distFromCenter = Math.abs(y - half);
+
+    if (distFromCenter / half < valleyParam.valleyEnd) {
+        return valleyParam.valleyHeight;
+    } else if (distFromCenter / half > valleyParam.plateauStart) {
+        return valleyParam.plateauHeight;
+    } else {
+        const xa = valleyParam.valleyEnd * half;
+        const xb = valleyParam.plateauStart * half;
+        const m = (valleyParam.plateauHeight - valleyParam.valleyHeight) / (xb - xa);
+        const p = valleyParam.valleyHeight - m * xa;
+        return (m * distFromCenter) + p;
+    }
+}
 
 (function () {
     init();

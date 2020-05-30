@@ -13,6 +13,10 @@ Perlin Noise:
     ✔ Add glowing/neon @done(20-05-20 16:46)
     ✔ Add Speed & Amplitude to GUI @started(20-05-20 16:48) @done(20-05-20 16:59) @lasted(11m26s)
     ✔ Add mouse controle left/right or paralax @started(20-05-20 23:31) @done(20-05-21 00:14) @lasted(43m31s)
+    ☐ Make the edges higher & the center lower (Valley)
+
+  BUG:
+    ✔ http://wwwd.corehtml5.com/trianglestripfundamentals.php ERROR triangle @done(20-05-30 01:40)
 
   Report:
     Desktop:
