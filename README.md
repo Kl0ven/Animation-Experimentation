@@ -6,6 +6,9 @@ Experimentation to add animated background to my website
 ![Perlin Noise Images](./Assets/Perlin_Noise.png)
  - [Boids Experimantion](./1_Boids/) 
 ![Boids Images](./Assets/Boids.png)
+ - [Maze Generator Experimantion](./2_Maze/) 
+![Maze Images](./Assets/Maze_generator.png)
+
 
 
 More to com, See [TODO](./TODO)

@@ -8,13 +8,13 @@ class RecursiveBacktracker {
 
     init () {
         this.map.draw();
-        this.setCurrentCell(this.map.getCellAt(20, 5));
+        this.setCurrentCell(this.map.getCellAt(0, 0));
     }
 
     run () {
         if (! this.map.isAllCellsVisited()) {
             this.step();
-            setTimeout(this.run.bind(this), 50);
+            setTimeout(this.run.bind(this), 100);
         }
     }
 
