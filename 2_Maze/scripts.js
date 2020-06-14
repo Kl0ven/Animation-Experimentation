@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 'use strict';
+import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.116.1/examples/jsm/libs/dat.gui.module.js';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -11,13 +12,18 @@ const styles = {
     lineWidth: 1
 };
 
+const settings = {
+    restart: restart,
+    cellSize: 10,
+    timeStep: 100
+};
+
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-const cellSize = 50;
 
-const map = new Map(ctx, cellSize, width, height, styles);
-const algorithm = new RecursiveBacktracker(map);
+let map = new Map(ctx, settings.cellSize, width, height, styles);
+let algorithm = new RecursiveBacktracker(map, settings);
 
 function init () {
     // Set size
@@ -29,9 +35,39 @@ function init () {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     algorithm.init();
-    algorithm.run();
 }
+
+function initGUI () {
+    const gui = new GUI();
+    const colorFolder = gui.addFolder('Color');
+    const settingsFolder = gui.addFolder('Settings');
+
+    colorFolder.open();
+    settingsFolder.open();
+
+    colorFolder.addColor(styles, 'backgroundColor');
+    colorFolder.addColor(styles, 'wallsColor');
+    colorFolder.addColor(styles, 'visitedColor');
+    colorFolder.addColor(styles, 'currentColor');
+
+    settingsFolder.add(settings, 'cellSize', 10, 100).step(1).onChange(restart);
+    settingsFolder.add(settings, 'timeStep', 10, 1000);
+    gui.add(settings, 'restart');
+}
+
+
+function restart () {
+    algorithm.stop = true;
+    map = new Map(ctx, settings.cellSize, width, height, styles);
+    algorithm = new RecursiveBacktracker(map, settings);
+    algorithm.init();
+    algorithm.run();
+    init();
+}
+
 
 (function () {
     init();
+    initGUI();
+    algorithm.run();
 })();

@@ -1,9 +1,11 @@
 // eslint-disable-next-line no-unused-vars
 class RecursiveBacktracker {
-    constructor (map) {
+    constructor (map, settings) {
         this.map = map;
         this.currentCell = null;
         this.stack = [];
+        this.stop = false;
+        this.settings = settings;
     }
 
     init () {
@@ -12,9 +14,9 @@ class RecursiveBacktracker {
     }
 
     run () {
-        if (! this.map.isAllCellsVisited()) {
+        if (! this.map.isAllCellsVisited() && !this.stop) {
             this.step();
-            setTimeout(this.run.bind(this), 100);
+            setTimeout(this.run.bind(this), this.settings.timeStep);
         }
     }
 
@@ -23,10 +25,6 @@ class RecursiveBacktracker {
         if (next) {
             this.setCurrentCell(next);
             this.stack.push(this.currentCell);
-            // for (const n of this.map.getNeigbors(next)) {
-            //     this.setCurrentCell(n)
-            //     n.draw();
-            // }
         } else if ( this.stack.length > 0) {
             const cell = this.stack.pop();
             this.setCurrentCell(cell);
