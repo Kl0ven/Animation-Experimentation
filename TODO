@@ -67,9 +67,9 @@ Boids:
   
   Report:
     Desktop:
-      ✔ Perf : 72 @done(20-05-29 18:24)
+      ✘ Perf : 72 @cancelled(20-06-14 18:11)
     Mobile:
-      ✔ Perf : 72 @done(20-05-29 18:24)
+      ✘ Perf : 72 @cancelled(20-06-14 18:11)
     
 
 
@@ -81,16 +81,16 @@ Maze:
     ✔ Generate hexagonal grid cell class @done(20-06-12 22:22)
     ✔ Add Map Class @done(20-06-12 22:33)
     Implement Recursive backtracker:
-      ☐ Forward tracking
-      ☐ Add backtracking
-    ☐ change visited cells to another color
-    ☐ change current cell to another color
+      ✔ Forward tracking @done(20-06-14 18:10)
+      ✔ Add backtracking @done(20-06-14 18:10)
+    ✔ change visited cells to another color @done(20-06-13 22:03)
+    ✔ change current cell to another color @done(20-06-14 18:10)
 
     Optimisation:
-      ☐ redraw only current cell and neighbours cell
+      ✔ redraw only current cell and neighbours cell @done(20-06-14 18:10)
 
   Report:
     Desktop:
-      ☐ Perf :
+      ✔ Perf : 100 @done(20-06-14 18:11)
     Mobile:
-      ☐ Perf :
+      ✔ Perf : 100 @done(20-06-14 18:11)
