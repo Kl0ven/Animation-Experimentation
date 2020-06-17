@@ -66,7 +66,7 @@ function init () {
 }
 
 function initGUI () {
-    const gui = new GUI({ load: presets});
+    const gui = new GUI({ load: presets });
     gui.remember(styles);
     const colorFolder = gui.addFolder('Color');
     const settingsFolder = gui.addFolder('Settings');
