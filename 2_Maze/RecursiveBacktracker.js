@@ -3,6 +3,7 @@ class RecursiveBacktracker {
     constructor (map, settings) {
         this.map = map;
         this.currentCell = null;
+        this.previousCell = null;
         this.stack = [];
         this.stop = false;
         this.settings = settings;
@@ -17,6 +18,8 @@ class RecursiveBacktracker {
         if (! this.map.isAllCellsVisited() && !this.stop) {
             this.step();
             setTimeout(this.run.bind(this), this.settings.timeStep);
+        } else {
+            this.currentCell.leave();
         }
     }
 
@@ -32,9 +35,16 @@ class RecursiveBacktracker {
     }
 
     setCurrentCell (c) {
+        if (this.previousCell) {
+            this.previousCell.erase();
+            this.previousCell.draw();
+        }
         if (this.currentCell) {
+            this.currentCell.erase();
+            c.erase();
             this.map.removeWall(this.currentCell, c);
             this.currentCell.leave();
+            this.previousCell = this.currentCell;
         }
 
         this.currentCell = c;
